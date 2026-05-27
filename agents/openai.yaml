@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML Master"
+  short_description: "Build editable animated HTML presentations"
+  default_prompt: "Use $html-master to turn my PPT or brief into an editable, polished HTML presentation."

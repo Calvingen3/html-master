@@ -26,6 +26,12 @@ git clone https://github.com/Calvingen3/html-master "${CODEX_HOME:-$HOME/.codex}
 
 Restart Codex after installation.
 
+Install supporting skills and PPTX extraction dependencies:
+
+```bash
+"${CODEX_HOME:-$HOME/.codex}/skills/html-master/scripts/install-deps.sh" "${CODEX_HOME:-$HOME/.codex}/skills"
+```
+
 ### Claude Code
 
 If your Claude Code setup supports the Skills CLI:
@@ -43,6 +49,12 @@ git clone https://github.com/Calvingen3/html-master "$HOME/.claude/skills/html-m
 
 Restart Claude Code after installation.
 
+Install supporting skills and PPTX extraction dependencies:
+
+```bash
+"$HOME/.claude/skills/html-master/scripts/install-deps.sh" "$HOME/.claude/skills"
+```
+
 ### Hermes / OpenClaw / Other Agents
 
 This skill is portable if the agent can load Agent Skills-style folders containing `SKILL.md`.
@@ -54,11 +66,40 @@ mkdir -p <agent-skill-root>
 git clone https://github.com/Calvingen3/html-master <agent-skill-root>/html-master
 ```
 
+Then install supporting skills into the same root:
+
+```bash
+<agent-skill-root>/html-master/scripts/install-deps.sh <agent-skill-root>
+```
+
 If the agent does not support Agent Skills directly, use `SKILL.md` as an instruction file or system prompt attachment.
+
+## Offline Install
+
+If GitHub is unavailable on the target machine, use the offline bundle zip instead of cloning. Unzip it locally, then copy or install the bundled `skills/` folders into the target agent's skill root.
+
+```bash
+unzip html-master-offline-bundle-*.zip
+cd html-master-offline-bundle-*
+./offline-install.sh <agent-skill-root>
+```
+
+The offline bundle should include:
+
+- `html-master`
+- `frontend-slides`
+- `beautiful-html-templates`
+- GSAP skills from `greensock/gsap-skills`
+
+After offline install, run the dependency script once to verify paths and create `frontend-slides/.venv` when Python is available:
+
+```bash
+<agent-skill-root>/html-master/scripts/install-deps.sh <agent-skill-root>
+```
 
 ## Runtime Dependencies
 
-`html-master` checks and installs supporting skills when needed:
+`html-master` checks and installs supporting skills through `scripts/install-deps.sh`:
 
 - `greensock/gsap-skills`
 - `zarazhangrui/frontend-slides`
@@ -100,6 +141,9 @@ Use $html-master and add cinematic GSAP animation.
 html-master/
   SKILL.md
   README.md
+  LICENSE
   agents/
     openai.yaml
+  scripts/
+    install-deps.sh
 ```

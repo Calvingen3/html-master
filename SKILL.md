@@ -1,6 +1,6 @@
 ---
 name: html-master
-description: Use when the user wants an editable HTML presentation, HTML PPT, web slide deck, animated slide deck, or PPTX-to-HTML redesign from a PowerPoint source file or from a brief without a source PPT. Trigger for .ppt, .pptx, slides, deck, presentation, HTML slides, editable mode, built-in editing, frontend-slides, beautiful-html-templates, GSAP, advanced animation, template previews, PDF export, or Vercel deployment.
+description: Use when the user wants an editable HTML presentation, HTML PPT, animated web slide deck, or PPT/PPTX-to-HTML redesign from a source deck or written brief. Trigger for slides, deck, presentation, edit mode, built-in editing, frontend-slides, beautiful-html-templates, GSAP animation, template previews, PDF export, or Vercel deployment.
 ---
 
 # HTML Master
@@ -16,82 +16,25 @@ Every delivered HTML deck must include an in-browser editing mode unless the use
 
 ## Dependency Check First
 
-Before starting deck work, resolve the current agent's skill directory. Prefer an explicit environment variable, then common agent defaults:
+Before deck work, ensure these sibling skills/libraries exist in the current agent skill root:
+
+- `frontend-slides`
+- `beautiful-html-templates`
+- GSAP skills: `gsap-core`, `gsap-timeline`, `gsap-scrolltrigger`, `gsap-performance`, plus related GSAP helpers when available
+
+Use `scripts/install-deps.sh` for deterministic setup. It accepts an explicit skill root, which is safest for Claude, OpenClaw, Hermes, or any machine with multiple agent skill folders:
 
 ```bash
-if [ -n "${SKILL_ROOT:-}" ]; then
-  :
-elif [ -n "${CODEX_HOME:-}" ]; then
-  SKILL_ROOT="$CODEX_HOME/skills"
-elif [ -d "$HOME/.codex/skills" ]; then
-  SKILL_ROOT="$HOME/.codex/skills"
-elif [ -d "$HOME/.claude/skills" ]; then
-  SKILL_ROOT="$HOME/.claude/skills"
-elif [ -d "$HOME/.agents/skills" ]; then
-  SKILL_ROOT="$HOME/.agents/skills"
-else
-  SKILL_ROOT="$HOME/.codex/skills"
-fi
+./scripts/install-deps.sh <agent-skill-root>
 ```
 
-Then check local dependencies:
+If no argument is passed, the script infers the root from the installed `html-master` folder, then falls back to `SKILL_ROOT`, `CODEX_HOME`, and common agent defaults. It also creates `frontend-slides/.venv` and installs `python-pptx` there when needed. Do not install Python packages into a Homebrew-managed system Python.
 
-```bash
-test -f "$SKILL_ROOT/gsap-core/SKILL.md"
-test -f "$SKILL_ROOT/gsap-timeline/SKILL.md"
-test -f "$SKILL_ROOT/gsap-scrolltrigger/SKILL.md"
-test -f "$SKILL_ROOT/gsap-performance/SKILL.md"
-test -f "$SKILL_ROOT/frontend-slides/SKILL.md"
-test -f "$SKILL_ROOT/beautiful-html-templates/AGENTS.md"
-```
-
-If GSAP skills are missing, install the official GreenSock skills before continuing. Prefer `npx skills`:
-
-```bash
-npx skills add https://github.com/greensock/gsap-skills -g -y
-```
-
-If `npx skills` is unavailable, clone the official repo to a temporary location and copy the eight folders from `skills/` into `$SKILL_ROOT`:
-
-```bash
-tmp_dir="$(mktemp -d)"
-git clone --depth 1 https://github.com/greensock/gsap-skills.git "$tmp_dir/gsap-skills"
-mkdir -p "$SKILL_ROOT"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-core" "$SKILL_ROOT/"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-timeline" "$SKILL_ROOT/"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-scrolltrigger" "$SKILL_ROOT/"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-plugins" "$SKILL_ROOT/"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-utils" "$SKILL_ROOT/"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-react" "$SKILL_ROOT/"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-performance" "$SKILL_ROOT/"
-cp -R "$tmp_dir/gsap-skills/skills/gsap-frameworks" "$SKILL_ROOT/"
-```
-
-If `frontend-slides` is missing, install it before continuing:
-
-```bash
-npx skills add https://github.com/zarazhangrui/frontend-slides -g -y
-```
-
-If `npx skills` is unavailable:
-
-```bash
-git clone --depth 1 https://github.com/zarazhangrui/frontend-slides.git "$SKILL_ROOT/frontend-slides"
-```
-
-If `beautiful-html-templates` is missing, clone it as a template library. It is not a normal single-skill folder, so `git clone` is the reliable path:
-
-```bash
-git clone --depth 1 https://github.com/zarazhangrui/beautiful-html-templates.git "$SKILL_ROOT/beautiful-html-templates"
-```
-
-For `frontend-slides` PPT extraction, prefer the repo-local venv if present:
+For PPT extraction, prefer:
 
 ```bash
 "$SKILL_ROOT/frontend-slides/.venv/bin/python" "$SKILL_ROOT/frontend-slides/scripts/extract-pptx.py" <input.pptx> <output_dir>
 ```
-
-If the venv is missing, create it and install `python-pptx` there. Do not force-install into Homebrew-managed system Python.
 
 ## Workflow Decision
 
@@ -131,15 +74,16 @@ Use this path when the user has no source PPT.
 Follow `beautiful-html-templates`' original workflow:
 
 1. Ask for the occasion and desired mood/vibe.
-2. Read `$SKILL_ROOT/beautiful-html-templates/index.json`.
-3. Pick 3 distinct template candidates.
-4. Build title-slide previews populated with the user's actual topic and context.
-5. Open or present the preview paths and ask the user to choose.
-6. Run the **Advanced Animation Gate** after the user chooses a template and before building the full deck.
-7. Build the full HTML deck from the chosen template, preserving that template's fonts, palette, layout grammar, decorative vocabulary, and navigation.
-8. Add or adapt layouts within the same template system when the user's content needs more slide types.
-9. Include built-in edit mode in the generated HTML.
-10. Verify the HTML in a browser and check responsiveness, navigation, text fit, animation behavior, and edit mode.
+2. Read `$SKILL_ROOT/beautiful-html-templates/AGENTS.md` for the current template-selection instructions.
+3. Read `$SKILL_ROOT/beautiful-html-templates/index.json`.
+4. Pick 3 distinct template candidates.
+5. Build title-slide previews populated with the user's actual topic and context.
+6. Open or present the preview paths and ask the user to choose.
+7. Run the **Advanced Animation Gate** after the user chooses a template and before building the full deck.
+8. Build the full HTML deck from the chosen template, preserving that template's fonts, palette, layout grammar, decorative vocabulary, and navigation.
+9. Add or adapt layouts within the same template system when the user's content needs more slide types.
+10. Include built-in edit mode in the generated HTML.
+11. Verify the HTML in a browser and check responsiveness, navigation, text fit, animation behavior, and edit mode.
 
 ## Advanced Animation Gate
 

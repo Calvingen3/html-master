@@ -1,4 +1,4 @@
 interface:
   display_name: "HTML Master"
-  short_description: "Build editable animated HTML presentations"
-  default_prompt: "Use $html-master to turn my PPT or brief into an editable, polished HTML presentation."
+  short_description: "Create editable HTML slide decks from PPTX or briefs"
+  default_prompt: "Use $html-master to turn my PPT, outline, or brief into an editable, verified HTML presentation."

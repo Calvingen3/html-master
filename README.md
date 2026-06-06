@@ -7,7 +7,7 @@ It supports two workflows:
 - **PPTX redesign:** extract text/images from a PowerPoint file, then rebuild it as a redesigned HTML deck. It intentionally avoids pixel-perfect conversion.
 - **Template-first creation:** when no PPTX is provided, use `beautiful-html-templates` to choose a visual system, preview options, and build the deck.
 
-Every final HTML deck should include built-in editing mode. Before final generation, the skill asks whether to add advanced animation; if selected, it uses GSAP skills.
+Every final HTML deck should include built-in editing mode. Before final generation, the skill now requires deck planning, template/class preflight, asset handling, animation choice, edit-mode checks, and static validation. If the user requests Guizang, magazine, Swiss, or horizontal swipe deck style, `html-master` routes to `guizang-ppt-skill` instead of duplicating its visual rules.
 
 ## Install
 
@@ -132,8 +132,20 @@ Use $html-master and add cinematic GSAP animation.
 - PPTX input uses redesign, not faithful conversion.
 - Large PPTX files may be tested on the first 10 slides before rebuilding the full deck.
 - If no PPTX is provided, the skill follows the `beautiful-html-templates` preview workflow.
+- Guizang, magazine, Swiss, launch-event, or horizontal swipe deck requests should use `guizang-ppt-skill` as the style backend.
 - Final HTML must include edit mode unless the user explicitly opts out.
-- PDF export or Vercel deployment should happen after local browser verification.
+- Final HTML should be checked with the bundled validator before delivery.
+- PDF export or deployment should happen after local browser verification.
+
+## Validation
+
+Run the static deck validator against generated HTML:
+
+```bash
+node <agent-skill-root>/html-master/scripts/validate-html-deck.mjs path/to/index.html
+```
+
+Use `--allow-no-edit` or `--allow-no-export` only when the user explicitly opted out or the delivery context makes that feature impossible.
 
 ## Repository Layout
 
@@ -144,6 +156,13 @@ html-master/
   LICENSE
   agents/
     openai.yaml
+  references/
+    workflow-gates.md
+    deck-planning.md
+    asset-handling.md
+    edit-mode.md
+    verification.md
   scripts/
     install-deps.sh
+    validate-html-deck.mjs
 ```
